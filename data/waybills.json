@@ -50,11 +50,8 @@
         "value": "0-4℃"
       }
     ],
-    "status": "已分单",
-    "createdAt": "2026-07-08T08:12:00",
-    "batchId": "PCmrbitr0x-c1fy",
-    "sequence": 1,
-    "dispatchedAt": "2026-07-08T03:31:22.257Z"
+    "status": "待分单",
+    "createdAt": "2026-07-08T08:12:00"
   },
   {
     "id": "YD20260708-003",
@@ -71,11 +68,8 @@
     "priority": "普通",
     "remark": "",
     "custom": [],
-    "status": "已分单",
-    "createdAt": "2026-07-08T08:15:00",
-    "batchId": "PCmrbitr0x-c1fy",
-    "sequence": 2,
-    "dispatchedAt": "2026-07-08T03:31:22.257Z"
+    "status": "待分单",
+    "createdAt": "2026-07-08T08:15:00"
   },
   {
     "id": "YD20260708-004",
@@ -98,11 +92,8 @@
         "value": "是"
       }
     ],
-    "status": "已分单",
-    "createdAt": "2026-07-08T08:20:00",
-    "batchId": "PCmrbitr0x-eci1",
-    "sequence": 1,
-    "dispatchedAt": "2026-07-08T03:31:22.257Z"
+    "status": "待分单",
+    "createdAt": "2026-07-08T08:20:00"
   },
   {
     "id": "YD20260708-005",
@@ -119,11 +110,8 @@
     "priority": "普通",
     "remark": "",
     "custom": [],
-    "status": "已分单",
-    "createdAt": "2026-07-08T08:25:00",
-    "batchId": "PCmrbitr0x-q9qs",
-    "sequence": 2,
-    "dispatchedAt": "2026-07-08T03:31:22.257Z"
+    "status": "待分单",
+    "createdAt": "2026-07-08T08:25:00"
   },
   {
     "id": "YD20260708-006",
@@ -146,11 +134,8 @@
         "value": "-20℃"
       }
     ],
-    "status": "已分单",
-    "createdAt": "2026-07-08T08:30:00",
-    "batchId": "PCmrbitr0x-obfu",
-    "sequence": 2,
-    "dispatchedAt": "2026-07-08T03:31:22.257Z"
+    "status": "待分单",
+    "createdAt": "2026-07-08T08:30:00"
   },
   {
     "id": "YD20260708-007",
@@ -173,11 +158,8 @@
         "value": "-20℃"
       }
     ],
-    "status": "已分单",
-    "createdAt": "2026-07-08T08:35:00",
-    "batchId": "PCmrbitr0x-obfu",
-    "sequence": 1,
-    "dispatchedAt": "2026-07-08T03:31:22.257Z"
+    "status": "待分单",
+    "createdAt": "2026-07-08T08:35:00"
   },
   {
     "id": "YD20260708-008",
@@ -194,10 +176,43 @@
     "priority": "普通",
     "remark": "",
     "custom": [],
-    "status": "已分单",
-    "createdAt": "2026-07-08T08:40:00",
-    "batchId": "PCmrbitr0x-eci1",
-    "sequence": 2,
-    "dispatchedAt": "2026-07-08T03:31:22.257Z"
+    "status": "待分单",
+    "createdAt": "2026-07-08T08:40:00"
+  },
+  {
+    "id": "YD20260709-1001",
+    "warehouse": "长沙雨花仓",
+    "shipper": "绝味食品",
+    "recipient": "张三",
+    "phone": "13800000000",
+    "address": "长沙市雨花区韶山中路1号",
+    "tempLayer": "冷藏",
+    "weight": 12.5,
+    "itemType": "卤制食品",
+    "pieces": 3,
+    "route": "雨花-南部",
+    "priority": "普通",
+    "remark": "易碎轻放",
+    "custom": [],
+    "status": "待分单",
+    "createdAt": "2026-07-09T02:40:24.556Z"
+  },
+  {
+    "id": "YD20260709-1002",
+    "warehouse": "长沙雨花仓",
+    "shipper": "盐津铺子",
+    "recipient": "李四",
+    "phone": "13900000000",
+    "address": "长沙市芙蓉区五一大道2号",
+    "tempLayer": "常温",
+    "weight": 8,
+    "itemType": "蜜饯",
+    "pieces": 2,
+    "route": "芙蓉-东部",
+    "priority": "加急",
+    "remark": "",
+    "custom": [],
+    "status": "待分单",
+    "createdAt": "2026-07-09T02:40:24.556Z"
   }
 ]
