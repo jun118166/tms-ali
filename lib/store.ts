@@ -48,10 +48,9 @@ function genId(): string {
   return `YD${ymd}-${rand}`;
 }
 
-export function createWaybill(input: Partial<Waybill>): Waybill {
-  const list = readAll();
+export function buildWaybill(input: Partial<Waybill>): Waybill {
   const now = new Date().toISOString();
-  const wb: Waybill = {
+  return {
     id: input.id?.trim() || genId(),
     warehouse: input.warehouse?.trim() || "长沙雨花仓",
     shipper: input.shipper?.trim() || "未知货主",
@@ -69,9 +68,26 @@ export function createWaybill(input: Partial<Waybill>): Waybill {
     status: "待分单",
     createdAt: now,
   };
+}
+
+export function createWaybill(input: Partial<Waybill>): Waybill {
+  const list = readAll();
+  const wb = buildWaybill(input);
   list.push(wb);
   writeAll(list);
   return wb;
+}
+
+/** 批量导入：一次性写入，避免逐条写盘 */
+export function bulkCreateWaybills(inputs: Partial<Waybill>[]): { created: number } {
+  const list = readAll();
+  let created = 0;
+  for (const input of inputs) {
+    list.push(buildWaybill(input));
+    created++;
+  }
+  writeAll(list);
+  return { created };
 }
 
 export function updateWaybill(id: string, patch: Partial<Waybill>): Waybill | undefined {

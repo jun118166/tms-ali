@@ -19,7 +19,7 @@
 
 ## 技术栈
 
-- Next.js 14（App Router） + TypeScript
+- Next.js 13（App Router） + TypeScript
 - Tailwind CSS
 - qrcode.react（二维码）
 - 数据存储：本地 JSON 文件（`data/waybills.json`，首次启动自动写入演示数据）
@@ -44,7 +44,7 @@ npm run start
 | 页面 | 路径 | 说明 |
 | --- | --- | --- |
 | 概览看板 | `/` | 运单统计、货主/温层分布、方案说明 |
-| 运单管理 | `/waybills` | 运单列表、搜索、新建/编辑/删除、**自定义扩展字段** |
+| 运单管理 | `/waybills` | 运单列表、搜索、新建/编辑/删除、**批量导入（CSV/JSON）**、**自定义扩展字段** |
 | 智能分单 | `/dispatch` | 按路线/货主分组生成派车单、重置分单 |
 | 打印派车单 | `/print/[batchId]` | 可打印/导出 PDF 的派车单，含每个运单的签收二维码 |
 | 司机 H5 | `/driver/[id]` | 扫码打开：开始配送 / 确认签收(POD) / 标记异常 |
@@ -76,18 +76,29 @@ vercel
 > Vercel Postgres / Neon / Vercel KV 等托管存储（接口已封装，改动集中）。
 > 只读环境下应用仍可正常「访问」并展示种子数据。
 
+### 批量导入运单（CSV / JSON）
+
+在「运单管理」页点击 **导入运单** 可批量录入：
+
+- 支持 **CSV** 与 **JSON** 文件；点击「下载导入模板」获取带表头的 CSV 样例。
+- 表头别名自动识别：`运单号 / 仓库 / 货主 / 收件人 / 电话 / 收件地址 / 温层 / 重量 / 物品类型 / 件数 / 路线 / 优先级 / 备注`
+  （也兼容英文及常见别名）。
+- **未识别的列自动归入「自定义扩展字段」**，满足个性化运单信息。
+- 导入前展示预览与逐行校验（缺货主/收件人/收件地址的行标红），仅导入校验通过的运单。
+- 温层限定 `常温/冷藏/冷冻/恒温`，优先级限定 `普通/加急/VIP`，非法值自动归默认。
+
 ## 目录结构
 
 ```
 app/
-  api/            # 接口：运单 CRUD、分单
-  waybills/       # 运单管理（列表/新建/编辑）
+  api/            # 接口：运单 CRUD、批量导入、分单
+  waybills/       # 运单管理（列表/新建/编辑/导入）
   dispatch/       # 智能分单
   print/[batch]/  # 派车单打印
   driver/[id]/    # 司机端 H5（扫码）
   track/          # 配送跟踪看板
   page.tsx        # 概览看板
-components/       # Nav、WaybillForm
-lib/              # types、store、dispatch、seed
+components/       # Nav、WaybillForm、ImportModal
+lib/              # types、store、dispatch、seed、csv、import
 data/             # 运行时生成的运单 JSON（已 gitignore）
 ```

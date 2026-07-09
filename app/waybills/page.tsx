@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Waybill, WaybillStatus } from "@/lib/types";
+import ImportModal from "@/components/ImportModal";
 
 const STATUS_COLOR: Record<WaybillStatus, string> = {
   待分单: "bg-slate-100 text-slate-600",
@@ -16,6 +17,7 @@ export default function WaybillsPage() {
   const [list, setList] = useState<Waybill[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [showImport, setShowImport] = useState(false);
 
   function load() {
     setLoading(true);
@@ -44,12 +46,20 @@ export default function WaybillsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h1 className="text-xl font-bold">运单管理</h1>
-        <Link
-          href="/waybills/new"
-          className="bg-brand-600 text-white px-4 py-2 rounded text-sm hover:bg-brand-700"
-        >
-          + 新建运单
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowImport(true)}
+            className="border border-brand-600 text-brand-600 px-4 py-2 rounded text-sm hover:bg-brand-50"
+          >
+            导入运单
+          </button>
+          <Link
+            href="/waybills/new"
+            className="bg-brand-600 text-white px-4 py-2 rounded text-sm hover:bg-brand-700"
+          >
+            + 新建运单
+          </Link>
+        </div>
       </div>
 
       <input
@@ -114,6 +124,10 @@ export default function WaybillsPage() {
           </tbody>
         </table>
       </div>
+
+      {showImport && (
+        <ImportModal onClose={() => setShowImport(false)} onDone={() => { setShowImport(false); load(); }} />
+      )}
     </div>
   );
 }
