@@ -56,6 +56,7 @@ export interface Waybill {
   podNote?: string; // 签收/异常备注
   batchId?: string; // 所属派车单批次
   sequence?: number; // 批次内配送顺序
+  dispatchGroupBy?: "route" | "shipper"; // 该运单被分单时的分组依据
 }
 
 export interface DispatchBatch {

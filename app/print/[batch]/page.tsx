@@ -22,7 +22,11 @@ export default function PrintPage() {
           .filter((w) => w.batchId === batchId)
           .sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
         setItems(f);
-        setGroupKey(f[0]?.route || f[0]?.shipper || "");
+        setGroupKey(
+          f[0]?.dispatchGroupBy === "shipper"
+            ? f[0]?.shipper || "未知货主"
+            : f[0]?.route || "未分配"
+        );
       })
       .finally(() => setLoading(false));
   }, [batchId]);

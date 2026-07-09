@@ -45,6 +45,7 @@ export async function buildDispatch(groupBy: "route" | "shipper"): Promise<Dispa
       ref.batchId = batchId;
       ref.sequence = i + 1;
       ref.dispatchedAt = now;
+      ref.dispatchGroupBy = groupBy;
     });
     batches.push({
       batchId,
@@ -72,6 +73,7 @@ export async function resetDispatch(): Promise<number> {
         batchId: undefined,
         sequence: undefined,
         dispatchedAt: undefined,
+        dispatchGroupBy: undefined,
       };
     }
     return w;

@@ -26,11 +26,18 @@ export default function DispatchPage() {
         if (!map.has(w.batchId!)) map.set(w.batchId!, []);
         map.get(w.batchId!)!.push(w);
       });
-    return Array.from(map.entries()).map(([batchId, items]) => ({
-      batchId,
-      groupKey: items[0]?.route || items[0]?.shipper || "",
-      items: items.sort((a, b) => (a.sequence || 0) - (b.sequence || 0)),
-    }));
+    return Array.from(map.entries()).map(([batchId, items]) => {
+      const groupBy = items[0]?.dispatchGroupBy ?? "route";
+      return {
+        batchId,
+        groupBy,
+        groupKey:
+          groupBy === "shipper"
+            ? items[0]?.shipper || "未知货主"
+            : items[0]?.route || "未分配",
+        items: items.sort((a, b) => (a.sequence || 0) - (b.sequence || 0)),
+      };
+    });
   }, [list]);
 
   const pending = list.filter((w) => w.status === "待分单").length;
@@ -123,7 +130,7 @@ export default function DispatchPage() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <span className="font-medium">
-                    {groupBy === "shipper" ? "货主" : "路线"}：{b.groupKey}
+                    {b.groupBy === "shipper" ? "货主" : "路线"}：{b.groupKey}
                   </span>
                   <span className="text-slate-400 text-sm ml-3">
                     {b.items.length} 单 · 批次 {b.batchId}
