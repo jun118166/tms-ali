@@ -1,5 +1,5 @@
 import { DispatchBatch, Waybill } from "./types";
-import { readAll, writeAll } from "./store";
+import { readAll, saveAll } from "./store";
 
 const PRIORITY_WEIGHT: Record<string, number> = {
   VIP: 0,
@@ -19,8 +19,8 @@ function sortWaybills(list: Waybill[]): Waybill[] {
  * 智能分单：把"待分单"运单按 路线/货主 分组，组内按优先级+运单号排序，
  * 生成派车单批次并写回状态。司机无需 App，靠纸质派车单 + 二维码作业。
  */
-export function buildDispatch(groupBy: "route" | "shipper"): DispatchBatch[] {
-  const all = readAll();
+export async function buildDispatch(groupBy: "route" | "shipper"): Promise<DispatchBatch[]> {
+  const all = await readAll();
   const candidates = all.filter((w) => w.status === "待分单");
   const groups = new Map<string, Waybill[]>();
 
@@ -55,13 +55,13 @@ export function buildDispatch(groupBy: "route" | "shipper"): DispatchBatch[] {
     });
   }
 
-  writeAll(Array.from(updated.values()));
+  await saveAll(Array.from(updated.values()));
   return batches;
 }
 
 /** 重置分单：把已分单但未配送/签收的运单退回待分单 */
-export function resetDispatch(): number {
-  const all = readAll();
+export async function resetDispatch(): Promise<number> {
+  const all = await readAll();
   let count = 0;
   const next = all.map((w) => {
     if (w.status === "已分单") {
@@ -76,6 +76,6 @@ export function resetDispatch(): number {
     }
     return w;
   });
-  if (count > 0) writeAll(next);
+  if (count > 0) await saveAll(next);
   return count;
 }

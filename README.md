@@ -15,14 +15,15 @@
 - **可自定义扩展**：运单支持自定义扩展字段（如温控要求、代收金额、证照随货等），
   并支持异常/拒收处理与实时配送看板。→ 对应 20–30 分扩展加分。
 - **功能正常可访问**：标准 Next.js 应用，本地 `npm run dev` 即可访问（详见下方）。
-  如需部署到 Vercel，见文末「Vercel 部署」一节（本次按需求**未实际部署**）。
+  如需部署到 Vercel，见文末「Vercel 部署与持久化」一节（已支持 Turso 持久化）。
 
 ## 技术栈
 
 - Next.js 13（App Router） + TypeScript
 - Tailwind CSS
 - qrcode.react（二维码）
-- 数据存储：本地 JSON 文件（`data/waybills.json`，首次启动自动写入演示数据）
+- 数据存储：**Turso（libSQL，Serverless 版 SQLite）**；未配置时回落本地 JSON 文件
+  （`data/waybills.json`，首次启动自动写入演示数据）
 
 ## 本地运行
 
@@ -60,7 +61,7 @@ npm run start
    点击「开始配送」→「确认签收」，完成无 App 的司机作业闭环。
 5. 回到 `/track` 查看状态与进度更新。
 
-## Vercel 部署（按需，本次未执行）
+## Vercel 部署与持久化
 
 本项目为标准的 Next.js 应用，可直接部署到 Vercel：
 
@@ -70,11 +71,27 @@ vercel login
 vercel
 ```
 
-> 说明：本地版使用文件系统 JSON 存储（`data/waybills.json`）。
-> 在 Vercel Serverless 环境中文件系统为只读，写入不会持久化。
-> 若要在 Vercel 上持久化数据，请将 `lib/store.ts` 中的读写替换为
-> Vercel Postgres / Neon / Vercel KV 等托管存储（接口已封装，改动集中）。
-> 只读环境下应用仍可正常「访问」并展示种子数据。
+> 关键：Vercel Serverless 环境文件系统为**只读**，本地 JSON 文件的写入不会持久化
+> （表现为「导入 / 分单 / 签收」在刷新后丢失）。因此生产环境使用 **Turso（libSQL）**
+> 作为 Serverless 版 SQLite 持久化层。
+
+### 接入 Turso（免费，约 1 分钟）
+
+1. 注册并创建数据库：<https://turso.tech> （或 `npm i -g turso && turso db create tms-ali`）。
+2. 获取连接信息：
+   - `turso db show tms-ali --url` → 填入 `TURSO_DATABASE_URL`
+   - `turso db tokens create tms-ali` → 填入 `TURSO_AUTH_TOKEN`
+3. 在 Vercel 项目 **Settings → Environment Variables** 中添加：
+   - `TURSO_DATABASE_URL`
+   - `TURSO_AUTH_TOKEN`
+4. **Redeploy**（触发一次重新部署使环境变量生效）。
+
+`lib/store.ts` 会自动探测这两个变量：存在则用 Turso（表 `waybills`，每行存一条运单 JSON），
+不存在则回落本地 `data/waybills.json`（本地开发、离线演示均无需任何配置）。
+首次连接 Turso 且表为空时，会自动写入 8 条演示种子数据。
+
+> 说明：导入 / 分单 / 司机签收等写操作在「已配置 Turso」的部署上才会持久化；
+> 未配置时本地可正常读写，但 Vercel 上不持久。
 
 ### 批量导入运单（CSV / JSON）
 
@@ -100,5 +117,5 @@ app/
   page.tsx        # 概览看板
 components/       # Nav、WaybillForm、ImportModal
 lib/              # types、store、dispatch、seed、csv、import
-data/             # 运行时生成的运单 JSON（已 gitignore）
+data/             # 本地回落存储的运单 JSON（已纳入 git；Turso 配置后由数据库接管）
 ```

@@ -8,6 +8,6 @@ export async function POST(req: NextRequest) {
   if (!Array.isArray(rows) || rows.length === 0) {
     return NextResponse.json({ error: "rows 不能为空" }, { status: 400 });
   }
-  const { created } = bulkCreateWaybills(rows);
+  const { created } = await bulkCreateWaybills(rows);
   return NextResponse.json({ created });
 }

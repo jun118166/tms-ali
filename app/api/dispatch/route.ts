@@ -6,11 +6,11 @@ export async function POST(req: NextRequest) {
   const action = body.action;
 
   if (action === "reset") {
-    const count = resetDispatch();
+    const count = await resetDispatch();
     return NextResponse.json({ ok: true, reset: count });
   }
 
   const groupBy: "route" | "shipper" = body.groupBy === "shipper" ? "shipper" : "route";
-  const batches = buildDispatch(groupBy);
+  const batches = await buildDispatch(groupBy);
   return NextResponse.json({ batches });
 }
