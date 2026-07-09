@@ -37,11 +37,11 @@ async function ensureTable(c: Client) {
 
 async function upsertTurso(c: Client, w: Waybill) {
   await ensureTable(c);
-  await c.execute(
-    `INSERT INTO waybills (id, data) VALUES (?, ?)
-     ON CONFLICT(id) DO UPDATE SET data = excluded.data`,
-    [w.id, JSON.stringify(w)]
-  );
+  await c.execute({
+    sql: `INSERT INTO waybills (id, data) VALUES (?, ?)
+          ON CONFLICT(id) DO UPDATE SET data = excluded.data`,
+    args: [w.id, JSON.stringify(w)],
+  });
 }
 
 async function fromTurso(c: Client): Promise<Waybill[]> {
