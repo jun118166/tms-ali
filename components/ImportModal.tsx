@@ -5,6 +5,7 @@ import { parseCSV } from "@/lib/csv";
 import {
   IMPORT_TEMPLATE_HEADERS,
   ParsedRow,
+  hasKnownHeaders,
   normalizeRow,
   parseCsvImport,
 } from "@/lib/import";
@@ -32,12 +33,35 @@ export default function ImportModal({ onClose, onDone }: { onClose: () => void; 
     URL.revokeObjectURL(url);
   }
 
+  /** 读取文件文本：先按 UTF-8 解码，识别不到已知表头则回退 GBK（Excel 中文默认编码） */
+  async function readFileText(file: File): Promise<string> {
+    const buf = await file.arrayBuffer();
+    let text = new TextDecoder("utf-8").decode(buf);
+    if (!hasKnownHeaders(text)) {
+      try {
+        const gbk = new TextDecoder("gbk").decode(buf);
+        if (gbk && gbk.length && hasKnownHeaders(gbk)) text = gbk;
+      } catch {
+        /* 浏览器不支持 gbk 时维持原文本 */
+      }
+    }
+    return text;
+  }
+
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
     setMsg("");
-    const text = await file.text();
+
+    let text: string;
+    try {
+      text = await readFileText(file);
+    } catch (err: any) {
+      setMsg("文件读取失败：" + (err?.message || "未知错误"));
+      setRows([]);
+      return;
+    }
 
     let parsed: ParsedRow[] = [];
     if (file.name.toLowerCase().endsWith(".json")) {
@@ -53,7 +77,12 @@ export default function ImportModal({ onClose, onDone }: { onClose: () => void; 
     } else {
       const { headers, rows: rawRows } = parseCSV(text);
       if (headers.length === 0) {
-        setMsg("未识别到表头，请检查 CSV 格式");
+        setMsg("未识别到表头，请检查 CSV 格式（支持 UTF-8 / GBK 编码）");
+        setRows([]);
+        return;
+      }
+      if (!hasKnownHeaders(text)) {
+        setMsg("未能识别运单表头，请使用「下载导入模板」或确认首行表头正确");
         setRows([]);
         return;
       }

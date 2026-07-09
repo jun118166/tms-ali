@@ -31,6 +31,10 @@ const HEADER_MAP: Record<string, keyof Waybill> = {
   temp_layer: "tempLayer",
   重量: "weight",
   重量kg: "weight",
+  重量(kg): "weight",
+  重量（kg）: "weight",
+  重量千克: "weight",
+  重量(千克): "weight",
   weight: "weight",
   kg: "weight",
   物品类型: "itemType",
@@ -48,6 +52,31 @@ const HEADER_MAP: Record<string, keyof Waybill> = {
   备注: "remark",
   remark: "remark",
 };
+
+/** 表头归一化：去 BOM、去空白、去括号内单位（如 (kg)/(千克)），统一小写 */
+export function normHeader(h: string): string {
+  return h
+    .replace(/^﻿/, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[（(][^）)]*[)）]/g, "") // 去掉 (kg) / （千克） 等单位说明
+    .replace(/\s+/g, "");
+}
+
+// 预构建归一化后的查找表
+const HEADER_LOOKUP: Record<string, keyof Waybill> = {};
+for (const [k, v] of Object.entries(HEADER_MAP)) {
+  HEADER_LOOKUP[normHeader(k)] = v;
+}
+
+// 用于识别文件编码是否为预期（含至少一个已知表头）的签名词
+const HEADER_SIGNATURES = ["运单号", "货主", "收件人", "shipper", "warehouse", "id", "phone"];
+
+/** 判断文本首行是否包含可识别的运单表头（用于编码探测） */
+export function hasKnownHeaders(text: string): boolean {
+  const firstLine = text.replace(/\r\n/g, "\n").split("\n")[0]?.toLowerCase() ?? "";
+  return HEADER_SIGNATURES.some((s) => firstLine.includes(s.toLowerCase()));
+}
 
 export const IMPORT_TEMPLATE_HEADERS = [
   "运单号",
@@ -119,7 +148,7 @@ export function mapCsvRow(headers: string[], row: string[]): ParsedRow {
   const custom: CustomField[] = [];
 
   headers.forEach((h, i) => {
-    const key = HEADER_MAP[h.trim().toLowerCase()] ?? HEADER_MAP[h.trim()];
+    const key = HEADER_LOOKUP[normHeader(h)];
     const value = (row[i] ?? "").trim();
     if (key) {
       raw[key] = value;
